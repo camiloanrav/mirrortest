@@ -20,9 +20,9 @@ public class RoomList : NetworkBehaviour {
     
     #region Start Functions  
     void Update(){
-        if(currentScreen == CurrentScreen.lobby){
+        /* if(currentScreen == CurrentScreen.lobby){
             StartCoroutine(ListRequest());
-        }
+        } */
     }
     #endregion
 
