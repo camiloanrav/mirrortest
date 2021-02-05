@@ -12,8 +12,7 @@ namespace MirrorBasics {
 
         [Header("Player Info Variables")]
         [Space(10)]
-        [SyncVar]
-        public string playerName;
+        [SyncVar] public string playerName;
         public bool isLeader;
         public bool isReady;
 
@@ -51,7 +50,7 @@ namespace MirrorBasics {
                 localPlayer = this;
             } else {
                 Debug.Log ($"Spawning other player UI Prefab");
-                playerLobbyUI = UILobby.instance.SpawnPlayerUIPrefab (this);
+                //playerLobbyUI = UIManager.instance.SpawnPlayerUIPrefab (this);
             }
         }
 
@@ -70,16 +69,16 @@ namespace MirrorBasics {
 
         #region Room Game Methods [Host, Join, Search, Start and Disconnect]
             #region  Host Game
-            public void HostGame (bool publicMatch) {
+            public void HostGame (bool publicMatch, int maxPlayers, Match.MatchType matchType) {
                 string matchID = MatchMaker.GetRandomMatchID ();
-                CmdHostGame (matchID, publicMatch);
+                CmdHostGame (matchID, publicMatch, maxPlayers, matchType);
                 PrintIdentity();
             }
 
             [Command]
-            void CmdHostGame (string _matchID, bool publicMatch) {
+            void CmdHostGame (string _matchID, bool publicMatch, int maxPlayers, Match.MatchType matchType) {
                 matchID = _matchID;
-                if (MatchMaker.instance.HostGame (_matchID, gameObject, publicMatch, out playerIndex)) {
+                if (MatchMaker.instance.HostGame(_matchID, gameObject, publicMatch, out playerIndex, maxPlayers, matchType)) {
                     Debug.Log ($"<color=green>Game hosted successfully</color>");
                     networkMatchChecker.matchId = _matchID.ToGuid ();
                     TargetHostGame (true, _matchID, playerIndex);
@@ -94,7 +93,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
-                UILobby.instance.HostSuccess (success, _matchID);
+                UIManager.instance.HostSuccess (success, _matchID);
             }
             #endregion
 
@@ -122,7 +121,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
-                UILobby.instance.JoinSuccess (success, _matchID);
+                UIManager.instance.JoinSuccess (success, _matchID);
             }
             #endregion
 
@@ -177,7 +176,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID} | {success}");
-                UILobby.instance.SearchGameSuccess (success, _matchID);
+                UIManager.instance.SearchGameSuccess (success, _matchID);
             }
             #endregion
 

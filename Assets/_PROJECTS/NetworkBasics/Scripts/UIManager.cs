@@ -7,7 +7,6 @@ using MirrorBasics;
 using System.Linq;
 
 public class UIManager : MonoBehaviour {
-
     public static UIManager instance;
 
     #region Global Vars
@@ -25,6 +24,7 @@ public class UIManager : MonoBehaviour {
     
     [Header("Rooms Menu")]
     [Space(10)]
+    private bool searching = false;
     public GameObject roomPrefabUI;
     public GameObject roomParent;
     public List<GameObject> roomsPrefabs = new List<GameObject>();
@@ -41,31 +41,36 @@ public class UIManager : MonoBehaviour {
     }
 
     public void Init(){
-        selectScreen(1);
+        selectScreen(0);
     }
     #endregion
+
 
     #region Custom Methods
 
     #region UI Methods
     public void UpdateUI(){
-        //Disable all Screens
-        for (int i = 0; i < screens.Count; i++) {
-            screens[i].SetActive(false);
-        }
-
+        
         switch (currentScreen) {   
 
             case CurrentScreen.username:
+                //Disable all Screens
+                screens.ForEach(x => x.SetActive(false));
+
                 screens[0].SetActive(true); //Active Username Input
                 screens[1].SetActive(true); //Active Username Input
             break;
 
             case CurrentScreen.Menu:
+                //Disable all Screens
+                screens.ForEach(x => x.SetActive(false));
                 screens[1].SetActive(true); //Active Username Input
             break;
 
             case CurrentScreen.Rooms:
+                //Disable all Screens
+                screens.ForEach(x => x.SetActive(false));
+
                 screens[2].SetActive(true); //Active Username Input
 
                 //Display Rooms UI 
@@ -75,10 +80,16 @@ public class UIManager : MonoBehaviour {
             break;
 
             case CurrentScreen.Teams:
+                //Disable all Screens
+                screens.ForEach(x => x.SetActive(false));
                 screens[3].SetActive(true); //Active Username Input
 
                 //Change Text and Inputs
                 teamUI.teamID.text = "Bla Bla..";
+            break;
+
+            case CurrentScreen.Searching:
+                screens[4].SetActive(true); //Active Username Input
             break;
         }
     }
@@ -100,6 +111,10 @@ public class UIManager : MonoBehaviour {
 
             case 3:
                 currentScreen = CurrentScreen.Teams;
+            break;
+
+            case 4:
+                currentScreen = CurrentScreen.Searching;
             break;
         }
 
@@ -145,76 +160,27 @@ public class UIManager : MonoBehaviour {
     #endregion
 
     #region Select Username
+    //[Command]
     public void setUsername(){
         //Leer el Input de Username
         playerNameText.text = playerName.text;
-
+        PlayerNetwork.localPlayer.playerName = playerName.text;
         //Select and Update UI
         selectScreen(1);
     }
     #endregion
 
-    #region Join Single Player
-    public void joinRandomGame(){
-
-    }
-    #endregion
-
-    #region Create Team
-    public void createTeam(int quantity){
-
-    }
-    #endregion
-
-    #region Join Team
-    public void joinTeam(){
-        //Select screen and Update UI
-        selectScreen(3);
-    }
-    #endregion
-
-    #endregion
-
-    #region Custom Classes
-    [System.Serializable]
-    public class TeamUI{
-        public Text teamID;
-        public InputField teamIDField;
-        public Button readyButton;
-        public List<Text> playersName = new List<Text>();
-        public List<Text> readyText = new List<Text>();
-    }
-
-    [System.Serializable]
-    public class roomUI{
-        public Text roomID;
-        public Text roomQuantity;
-        public Button roomJoin;
-    }
     
-    #endregion
-
-    #region Custom Enums
-    public enum CurrentScreen{
-        username, Menu, Rooms, Teams
-    }
-    #endregion
-
-
-
-    #region Importaciones
-
-
-
-
     #region Host Games [Public and Private]
-    public void HostPublic() {
-        lobbySelectables.ForEach(x => x.interactable = false);
+    //[Server]
+    public void HostPublicGame() {
+        //lobbySelectables.ForEach(x => x.interactable = false);
+        PlayerNetwork.localPlayer.HostGame(true, 50, Match.MatchType.game);
     }
 
-    public void HostPrivate() {
+    public void HostTeamSquad(){
         lobbySelectables.ForEach(x => x.interactable = false);
-        PlayerNetwork.localPlayer.HostGame(false);
+        PlayerNetwork.localPlayer.HostGame(false, 4, Match.MatchType.team);
     }
 
     public void HostSuccess(bool success, string matchID) {
@@ -243,6 +209,11 @@ public class UIManager : MonoBehaviour {
         PlayerNetwork.localPlayer.JoinGame(teamUI.teamIDField.text.ToUpper());
     }
 
+    public void JoinTeam() {
+        lobbySelectables.ForEach(x => x.interactable = false);
+        PlayerNetwork.localPlayer.JoinGame(teamUI.teamIDField.text.ToUpper());
+    }
+
     public void JoinFromButton(string roomID) {
         PlayerNetwork.localPlayer.JoinGame(roomID.ToUpper());
     }
@@ -253,6 +224,9 @@ public class UIManager : MonoBehaviour {
             
             //Enabled Team Room Panel
             selectScreen(3);
+            bool canEntry = false;
+            int roomIndex = 0;
+            int playerIndex = 0;
             //lobbyCanvas.enabled = true;
 
             //Set Team Room INFO
@@ -262,11 +236,20 @@ public class UIManager : MonoBehaviour {
             for (int i = 0; i < roomList.roomData.Count; i++) {
                 if (roomList.roomData[i].roomName.Equals(matchID)) {
                     for (int k = 0; k < roomList.roomData[i].roomPlayers.Length; k++) {
-                        if (roomList.roomData[i].roomPlayers[k] == null) { //CHECKING!
-                            teamUI.readyText[k].text = roomList.roomData[i].roomPlayers[k].GetComponent<PlayerNetwork>().playerName;
+                        if (roomList.roomData[i].roomPlayers[k].GetComponent<NetworkIdentity>().netId != PlayerNetwork.localPlayer.netId) { //CHECKING!
+                            canEntry = true;
+                            roomIndex = i;
+                            playerIndex = k;
+                        }else{
+                            canEntry = false;
+                            break;
                         }
                     }
                 } 
+            }
+
+            if (canEntry) {
+                teamUI.readyText[playerIndex+1].text = roomList.roomData[roomIndex].roomPlayers[playerIndex].GetComponent<PlayerNetwork>().playerName;
             }
 
         } else {
@@ -275,92 +258,92 @@ public class UIManager : MonoBehaviour {
     }
     #endregion
 
-
     #region Disconnect, Begin and Search
     public void DisconnectGame() {
         //MatchMaker.instance.roomListManager.CallSpawnsRooms();
         SpawnRooms();
         PlayerNetwork.localPlayer.DisconnectGame();
-
-        lobbyCanvas.enabled = false;
+        
         lobbySelectables.ForEach(x => x.interactable = true);
-        roomList.SetCurrentScreen(0);
-        //beginGameButton.SetActive (false);
+        selectScreen(1);
+        teamUI.readyButton.enabled = false;
     }
 
-    public GameObject SpawnPlayerUIPrefab(Player player)
-    {
+    /*public GameObject SpawnPlayerUIPrefab(Player player) {
         GameObject newUIPlayer = Instantiate(UIPlayerPrefab, UIPlayerParent);
         newUIPlayer.GetComponent<UIPlayer>().SetPlayer(player);
         newUIPlayer.transform.SetSiblingIndex(player.playerIndex - 1);
 
         return newUIPlayer;
+    }*/
+
+    public void BeginGame() {
+        PlayerNetwork.localPlayer.BeginGame();
     }
 
-    public void BeginGame()
-    {
-        Player.localPlayer.BeginGame();
-    }
-
-    public void SearchGame()
-    {
+    public void SearchGame() {
         StartCoroutine(Searching());
     }
 
-    public void CancelSearchGame()
-    {
+    public void CancelSearchGame() {
         searching = false;
+        selectScreen(1);
     }
 
-    public void SearchGameSuccess(bool success, string matchID)
-    {
-        if (success)
-        {
-            searchCanvas.enabled = false;
+    public void SearchGameSuccess(bool success, string matchID) {
+        if (success)  {
+            selectScreen(3);
             searching = false;
             JoinSuccess(success, matchID);
         }
     }
 
-    IEnumerator Searching()
-    {
-        searchCanvas.enabled = true;
+    IEnumerator Searching() {
+        selectScreen(4);
         searching = true;
 
         float searchInterval = 1;
         float currentTime = 1;
 
-        while (searching)
-        {
-            if (currentTime > 0)
-            {
+        while (searching) {
+            if (currentTime > 0) {
                 currentTime -= Time.deltaTime;
-            }
-            else
-            {
+            } else {
                 currentTime = searchInterval;
-                Player.localPlayer.SearchGame();
+                PlayerNetwork.localPlayer.SearchGame();
             }
             yield return null;
         }
-        searchCanvas.enabled = false;
+        selectScreen(4);
     }
     #endregion
 
-
-
-
-
-
-
-
-
-
-
     #endregion
 
 
+    #region Custom Classes
+    [System.Serializable]
+    public class TeamUI{
+        public Text teamID;
+        public InputField teamIDField;
+        public Button readyButton;
+        public List<Text> playersName = new List<Text>();
+        public List<Text> readyText = new List<Text>();
+    }
+
+    [System.Serializable]
+    public class roomUI{
+        public Text roomID;
+        public Text roomQuantity;
+        public Button roomJoin;
+    }
+    
+    #endregion
 
 
-
+    #region Custom Enums
+    public enum CurrentScreen{
+        username, Menu, Rooms, Teams, Searching
+    }
+    #endregion
 }

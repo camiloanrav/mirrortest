@@ -33,13 +33,13 @@ namespace MirrorBasics {
 
         public void HostPublic () {
             lobbySelectables.ForEach (x => x.interactable = false);
-            PlayerNetwork.localPlayer.HostGame (true);
+            //PlayerNetwork.localPlayer.HostGame (true);
             roomList.SetCurrentScreen(1);
         }
 
         public void HostPrivate () {
             lobbySelectables.ForEach (x => x.interactable = false);
-            PlayerNetwork.localPlayer.HostGame (false);
+            //PlayerNetwork.localPlayer.HostGame (false);
             roomList.SetCurrentScreen(1);
         }
 

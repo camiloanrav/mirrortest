@@ -9,16 +9,28 @@ namespace MirrorBasics {
   
     [System.Serializable]
     public class Match {
+
+        [Header("Match Config")]
+        [Space(10)]
         public string matchID;
+        public int maxPlayers;
+        public MatchType matchType;
         public bool publicMatch;
+
+        [Header("Match States")]
+        [Space(10)]
         public bool inMatch;
         public bool matchFull;
         public int totalPlayersInMatch;
         public SyncListGameObject players = new SyncListGameObject ();
 
-        public Match (string matchID, GameObject player, bool publicMatch) {
+        public Match (string matchID, GameObject player, bool publicMatch, int _maxPlayers, MatchType _matchType) {
             matchFull = false;
             inMatch = false;
+
+            maxPlayers = _maxPlayers;
+            matchType = _matchType;
+
             this.matchID = matchID;
             this.publicMatch = publicMatch;
             players.Add (player);
@@ -26,6 +38,10 @@ namespace MirrorBasics {
         }
 
         public Match () { }
+
+        public enum MatchType{
+            team, game, lobby
+        }
     }
 
     [System.Serializable]
@@ -72,12 +88,12 @@ namespace MirrorBasics {
             match.totalPlayersInMatch = match.players.Count;
         }
 
-        public bool HostGame (string _matchID, GameObject _player, bool publicMatch, out int playerIndex) {
+        public bool HostGame (string _matchID, GameObject _player, bool publicMatch, out int playerIndex, int maxPlayers, Match.MatchType matchType) {
             playerIndex = -1;
 
             if (!matchIDs.Contains (_matchID)) {
                 matchIDs.Add (_matchID);
-                Match match = new Match (_matchID, _player, publicMatch);
+                Match match = new Match (_matchID, _player, publicMatch, maxPlayers, matchType);
                 matches.Add (match);
                 Debug.Log ($"Match generated");
                 _player.GetComponent<PlayerNetwork> ().currentMatch = match;
