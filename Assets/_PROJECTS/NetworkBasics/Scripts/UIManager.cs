@@ -160,11 +160,20 @@ public class UIManager : MonoBehaviour {
     #endregion
 
     #region Select Username
-    //[Command]
+
+    void Update(){
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            PlayerNetwork.localPlayer.CmdSetUserName("ProbandoAndo");
+        }
+    }
+    public void setUsernameButton(){
+        PlayerNetwork.localPlayer.CmdSetUserName(playerName.text);
+    }
+
     public void setUsername(){
         //Leer el Input de Username
-        playerNameText.text = playerName.text;
-        PlayerNetwork.localPlayer.playerName = playerName.text;
+        playerNameText.text = PlayerNetwork.localPlayer.playerName;
         //Select and Update UI
         selectScreen(1);
     }
@@ -218,8 +227,7 @@ public class UIManager : MonoBehaviour {
         PlayerNetwork.localPlayer.JoinGame(roomID.ToUpper());
     }
 
-
-    public void JoinSuccess(bool success, string matchID) {
+    public void RpcJoinSuccess(bool success, string matchID) {
         if (success) {
             
             //Enabled Team Room Panel
@@ -294,7 +302,7 @@ public class UIManager : MonoBehaviour {
         if (success)  {
             selectScreen(3);
             searching = false;
-            JoinSuccess(success, matchID);
+            RpcJoinSuccess(success, matchID);
         }
     }
 

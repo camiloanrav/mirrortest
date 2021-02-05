@@ -2136,6 +2136,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 379044275}
+  - component: {fileID: 379044276}
   - component: {fileID: 379044274}
   m_Layer: 0
   m_Name: UIManager
@@ -2156,6 +2157,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cb5bfda1b173fa46abad5fb5ef8027d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   roomList: {fileID: 1628971953}
   currentScreen: 0
   screens:
@@ -2199,6 +2202,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &379044276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379044273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 282988660
+  serverOnly: 0
+  m_AssetId: 
+  hasSpawned: 0
 --- !u!1 &385076498
 GameObject:
   m_ObjectHideFlags: 0
@@ -3813,7 +3832,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 379044274}
-        m_MethodName: setUsername
+        m_MethodName: setUsernameButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7693,7 +7712,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 184.2, y: -3073.7002}
+  m_AnchoredPosition: {x: 184.2, y: -3246.625}
   m_SizeDelta: {x: 397.64603, y: 248.08575}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1668312682
@@ -9434,7 +9453,7 @@ GameObject:
   - component: {fileID: 2075424785}
   - component: {fileID: 2075424784}
   m_Layer: 5
-  m_Name: ChangeTeam Button
+  m_Name: ChangeName Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

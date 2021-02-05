@@ -65,7 +65,18 @@ namespace MirrorBasics {
         }
         #endregion
 
+        #region Set username
+        [Command]
+        public void CmdSetUserName(string username){
+            playerName = username;
+            RpcUpdatePlayerName();
+        }
 
+        [ClientRpc]
+        public void RpcUpdatePlayerName(){
+            UIManager.instance.setUsername();
+        }
+        #endregion
 
         #region Room Game Methods [Host, Join, Search, Start and Disconnect]
             #region  Host Game
@@ -121,7 +132,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
-                UIManager.instance.JoinSuccess (success, _matchID);
+                UIManager.instance.RpcJoinSuccess (success, _matchID);
             }
             #endregion
 
