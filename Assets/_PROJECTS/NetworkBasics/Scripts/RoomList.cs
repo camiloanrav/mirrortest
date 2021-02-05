@@ -23,6 +23,7 @@ public class RoomList : NetworkBehaviour {
         /* if(currentScreen == CurrentScreen.lobby){
             StartCoroutine(ListRequest());
         } */
+        /* Debug.Log(connectionToClient.connectionId); */
     }
     #endregion
 

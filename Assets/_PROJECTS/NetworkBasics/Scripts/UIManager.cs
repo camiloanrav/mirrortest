@@ -10,11 +10,13 @@ public class UIManager : MonoBehaviour {
 
     public static UIManager instance;
 
+    #region Global Vars
     [Header("Global Vars")]
     [Space(10)]
     public RoomList roomList;
     public CurrentScreen currentScreen;
     public List<GameObject> screens = new List<GameObject>();
+    [SerializeField] List<Selectable> lobbySelectables = new List<Selectable> ();
 
     [Header("Player Menu")]
     [Space(10)]
@@ -30,6 +32,7 @@ public class UIManager : MonoBehaviour {
     [Header("Team Menu")]
     [Space(10)]
     public TeamUI teamUI;
+    #endregion
 
     #region Init Methods
     void Start() {
@@ -196,4 +199,167 @@ public class UIManager : MonoBehaviour {
         username, Menu, Rooms, Teams
     }
     #endregion
+
+
+
+    #region Importaciones
+
+
+
+
+    #region Host Games [Public and Private]
+    public void HostPublic() {
+        lobbySelectables.ForEach(x => x.interactable = false);
+    }
+
+    public void HostPrivate() {
+        lobbySelectables.ForEach(x => x.interactable = false);
+        MirrorBasics.Player.localPlayer.HostGame(false);
+    }
+
+    public void HostSuccess(bool success, string matchID) {
+        if (success) {
+            //lobbyCanvas.enabled = true;
+            selectScreen(3);
+
+            //Set Team Room INFO
+            teamUI.teamID.text = matchID;
+            teamUI.readyButton.enabled = true;
+            teamUI.readyText.ForEach(x => x.text = "Not Ready..");  
+            teamUI.playersName.ForEach(x => x.text = "Waiting..");  
+
+            //Set First Player Name
+            teamUI.playersName[0].text = MirrorBasics.Player.localPlayer.playerName;
+        } else {
+            lobbySelectables.ForEach(x => x.interactable = true);
+            //Print message who say: "Cant Create Team Room"
+        }
+    }
+    #endregion
+
+
+    #region Join Game 
+    public void Join() {
+        lobbySelectables.ForEach(x => x.interactable = false);
+        MirrorBasics.Player.localPlayer.JoinGame(teamUI.teamIDField.text.ToUpper());
+    }
+
+    public void JoinFromButton(string roomID) {
+        MirrorBasics.Player.localPlayer.JoinGame(roomID.ToUpper());
+    }
+
+
+    public void JoinSuccess(bool success, string matchID) {
+        if (success) {
+            
+            //Enabled Team Room Panel
+            selectScreen(3);
+            //lobbyCanvas.enabled = true;
+
+            //Set Team Room INFO
+            teamUI.teamID.text = matchID;
+            teamUI.readyButton.enabled = true;
+
+            for (int i = 0; i < roomList.roomData.Count; i++) {
+                if (roomList.roomData[i].roomName.Equals(matchID)) {
+                    for (int k = 0; k < roomList.roomData[i].roomPlayers.Length; k++) {
+                        if (roomList.roomData[i].roomPlayers[k] == null) { //CHECKING!
+                            teamUI.readyText[k].text = roomList.roomData[i].roomPlayers[k].GetComponent<MirrorBasics.Player>().playerName;
+                        }
+                    }
+                } 
+            }
+
+            teamUI.readyText.ForEach(x => x.text = "Not Ready..");  
+            teamUI.playersName.ForEach(x => x.text = "Waiting..");  
+
+        } else {
+            lobbySelectables.ForEach(x => x.interactable = true);
+        }
+    }
+    #endregion
+
+
+
+
+
+
+
+
+
+    public void DisconnectGame()
+    {
+        MatchMaker.instance.roomListManager.CallSpawnsRooms();
+        if (localPlayerLobbyUI != null) Destroy(localPlayerLobbyUI);
+        Player.localPlayer.DisconnectGame();
+
+        lobbyCanvas.enabled = false;
+        lobbySelectables.ForEach(x => x.interactable = true);
+        roomList.SetCurrentScreen(0);
+        //beginGameButton.SetActive (false);
+    }
+
+    public GameObject SpawnPlayerUIPrefab(Player player)
+    {
+        GameObject newUIPlayer = Instantiate(UIPlayerPrefab, UIPlayerParent);
+        newUIPlayer.GetComponent<UIPlayer>().SetPlayer(player);
+        newUIPlayer.transform.SetSiblingIndex(player.playerIndex - 1);
+
+        return newUIPlayer;
+    }
+
+    public void BeginGame()
+    {
+        Player.localPlayer.BeginGame();
+    }
+
+    public void SearchGame()
+    {
+        StartCoroutine(Searching());
+    }
+
+    public void CancelSearchGame()
+    {
+        searching = false;
+    }
+
+    public void SearchGameSuccess(bool success, string matchID)
+    {
+        if (success)
+        {
+            searchCanvas.enabled = false;
+            searching = false;
+            JoinSuccess(success, matchID);
+        }
+    }
+
+    IEnumerator Searching()
+    {
+        searchCanvas.enabled = true;
+        searching = true;
+
+        float searchInterval = 1;
+        float currentTime = 1;
+
+        while (searching)
+        {
+            if (currentTime > 0)
+            {
+                currentTime -= Time.deltaTime;
+            }
+            else
+            {
+                currentTime = searchInterval;
+                Player.localPlayer.SearchGame();
+            }
+            yield return null;
+        }
+        searchCanvas.enabled = false;
+    }
+    #endregion
+
+
+
+
+
 }
