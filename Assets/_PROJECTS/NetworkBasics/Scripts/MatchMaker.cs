@@ -80,7 +80,7 @@ namespace MirrorBasics {
                 Match match = new Match (_matchID, _player, publicMatch);
                 matches.Add (match);
                 Debug.Log ($"Match generated");
-                _player.GetComponent<Player> ().currentMatch = match;
+                _player.GetComponent<PlayerNetwork> ().currentMatch = match;
 
                 for (int i = 0; i < matches.Count; i++)
                 {
@@ -129,7 +129,7 @@ namespace MirrorBasics {
                         if (!matches[i].inMatch && !matches[i].matchFull) {
                             matches[i].players.Add (_player);
                             roomListManager.RpcFillList(matches[i].players.ToArray(),matches[i].matchID);
-                            _player.GetComponent<Player> ().currentMatch = matches[i];
+                            _player.GetComponent<PlayerNetwork> ().currentMatch = matches[i];
                             playerIndex = matches[i].players.Count;
 
                             if (matches[i].players.Count == maxMatchPlayers) {
@@ -178,7 +178,7 @@ namespace MirrorBasics {
                 if (matches[i].matchID == _matchID) {
                     matches[i].inMatch = true;
                     foreach (var player in matches[i].players) {
-                        Player _player = player.GetComponent<Player> ();
+                        PlayerNetwork _player = player.GetComponent<PlayerNetwork> ();
                         _player.StartGame ();
                     }
                     break;
@@ -200,7 +200,7 @@ namespace MirrorBasics {
             return _id;
         }
 
-        public void PlayerDisconnected (Player player, string _matchID) {
+        public void PlayerDisconnected (PlayerNetwork player, string _matchID) {
             for (int i = 0; i < matches.Count; i++) {
                 if (matches[i].matchID == _matchID) {
                     int playerIndex = matches[i].players.IndexOf (player.gameObject);

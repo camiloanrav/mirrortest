@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace MirrorBasics {
-    public class Player : NetworkBehaviour {
+    public class PlayerNetwork : NetworkBehaviour {
 
         #region [Global Variables]
-        public static Player localPlayer;
+        public static PlayerNetwork localPlayer;
 
         [Header("Player Info Variables")]
         [Space(10)]

@@ -214,7 +214,7 @@ public class UIManager : MonoBehaviour {
 
     public void HostPrivate() {
         lobbySelectables.ForEach(x => x.interactable = false);
-        MirrorBasics.Player.localPlayer.HostGame(false);
+        PlayerNetwork.localPlayer.HostGame(false);
     }
 
     public void HostSuccess(bool success, string matchID) {
@@ -229,7 +229,7 @@ public class UIManager : MonoBehaviour {
             teamUI.playersName.ForEach(x => x.text = "Waiting..");  
 
             //Set First Player Name
-            teamUI.playersName[0].text = MirrorBasics.Player.localPlayer.playerName;
+            teamUI.playersName[0].text = PlayerNetwork.localPlayer.playerName;
         } else {
             lobbySelectables.ForEach(x => x.interactable = true);
             //Print message who say: "Cant Create Team Room"
@@ -237,15 +237,14 @@ public class UIManager : MonoBehaviour {
     }
     #endregion
 
-
     #region Join Game 
     public void Join() {
         lobbySelectables.ForEach(x => x.interactable = false);
-        MirrorBasics.Player.localPlayer.JoinGame(teamUI.teamIDField.text.ToUpper());
+        PlayerNetwork.localPlayer.JoinGame(teamUI.teamIDField.text.ToUpper());
     }
 
     public void JoinFromButton(string roomID) {
-        MirrorBasics.Player.localPlayer.JoinGame(roomID.ToUpper());
+        PlayerNetwork.localPlayer.JoinGame(roomID.ToUpper());
     }
 
 
@@ -264,14 +263,11 @@ public class UIManager : MonoBehaviour {
                 if (roomList.roomData[i].roomName.Equals(matchID)) {
                     for (int k = 0; k < roomList.roomData[i].roomPlayers.Length; k++) {
                         if (roomList.roomData[i].roomPlayers[k] == null) { //CHECKING!
-                            teamUI.readyText[k].text = roomList.roomData[i].roomPlayers[k].GetComponent<MirrorBasics.Player>().playerName;
+                            teamUI.readyText[k].text = roomList.roomData[i].roomPlayers[k].GetComponent<PlayerNetwork>().playerName;
                         }
                     }
                 } 
             }
-
-            teamUI.readyText.ForEach(x => x.text = "Not Ready..");  
-            teamUI.playersName.ForEach(x => x.text = "Waiting..");  
 
         } else {
             lobbySelectables.ForEach(x => x.interactable = true);
@@ -280,18 +276,11 @@ public class UIManager : MonoBehaviour {
     #endregion
 
 
-
-
-
-
-
-
-
-    public void DisconnectGame()
-    {
-        MatchMaker.instance.roomListManager.CallSpawnsRooms();
-        if (localPlayerLobbyUI != null) Destroy(localPlayerLobbyUI);
-        Player.localPlayer.DisconnectGame();
+    #region Disconnect, Begin and Search
+    public void DisconnectGame() {
+        //MatchMaker.instance.roomListManager.CallSpawnsRooms();
+        SpawnRooms();
+        PlayerNetwork.localPlayer.DisconnectGame();
 
         lobbyCanvas.enabled = false;
         lobbySelectables.ForEach(x => x.interactable = true);
@@ -356,6 +345,18 @@ public class UIManager : MonoBehaviour {
         }
         searchCanvas.enabled = false;
     }
+    #endregion
+
+
+
+
+
+
+
+
+
+
+
     #endregion
 
 
