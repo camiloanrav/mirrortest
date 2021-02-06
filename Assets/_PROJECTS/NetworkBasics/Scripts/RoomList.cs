@@ -9,6 +9,7 @@ using System.Linq;
 public class RoomList : NetworkBehaviour {
 
     #region [Global Variables]    
+    public static RoomList instance;
     public Transform roomParent;
     public GameObject roomPrefab;
     public MatchMaker matchManager;
@@ -19,11 +20,8 @@ public class RoomList : NetworkBehaviour {
     #endregion
     
     #region Start Functions  
-    void Update(){
-        /* if(currentScreen == CurrentScreen.lobby){
-            StartCoroutine(ListRequest());
-        } */
-        /* Debug.Log(connectionToClient.connectionId); */
+    void Start(){
+        instance = this;
     }
     #endregion
 
@@ -39,20 +37,34 @@ public class RoomList : NetworkBehaviour {
     //Update the Player list when a Room already exist
     [ClientRpc]
     public void RpcFillList(GameObject[] roomPlayers, string roomID){
-        for (int i = 0; i < roomData.Count; i++)
-        {
-            if(roomData.ToArray()[i].roomName.Equals(roomID))
+        for (int i = 0; i < roomData.Count; i++) {
+            if(roomData.ToArray()[i].roomName.Equals(roomID)){
+
                 roomData.ToArray()[i].roomPlayers = roomPlayers;
+                roomData.ToArray()[i].roomPlayersList.AddRange(roomPlayers);
+
+                //Fill list
+                /* for (int k = 0; k < roomPlayers.Length; k++) {
+                    roomData.ToArray()[i].roomPlayersList.Add(roomPlayers[k]);
+                } */
+            }
         }
-        SpawnRooms();
+
+
+        //SpawnRooms();
+        UIManager.instance.SpawnRooms();
     }
 
     //Fill the player list only with the player who create the Room
     public void FillListHost(GameObject[] _player, string roomID){
-        RoomData tempData = new RoomData(roomID, _player);
-        roomData.Add(tempData);
-        SpawnRooms();
+        //RoomData tempData = new RoomData(roomID, _player);
+        roomData.Add(new RoomData(roomID, _player));
+        Debug.Log("Room que cree: " + roomData[0].roomName);
+        //SpawnRooms();
+        UIManager.instance.SpawnRooms();
     }
+
+
 
     #region UI Methods
     public void SetCurrentScreen(int index){
@@ -117,10 +129,12 @@ public class RoomList : NetworkBehaviour {
     public class RoomData {
         public string roomName;
         public GameObject[] roomPlayers;
+        public List<GameObject> roomPlayersList = new List<GameObject>();
 
         public RoomData(string _roomName, GameObject[] _roomPlayers){
             roomName = _roomName;
             roomPlayers = _roomPlayers;
+            roomPlayersList.AddRange(_roomPlayers);
         }
 
         public RoomData(){}

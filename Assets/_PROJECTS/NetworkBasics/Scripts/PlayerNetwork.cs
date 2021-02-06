@@ -14,7 +14,7 @@ namespace MirrorBasics {
         [Space(10)]
         [SyncVar] public string playerName;
         public bool isLeader;
-        public bool isReady;
+        [SyncVar] public bool isReady;
 
         [Header("Team Variables")]
         [Space(10)]
@@ -65,6 +65,7 @@ namespace MirrorBasics {
         }
         #endregion
 
+
         #region Set username
         [Command]
         public void CmdSetUserName(string username){
@@ -78,10 +79,30 @@ namespace MirrorBasics {
         }
         #endregion
 
+        #region Ready Game
+        [Command]
+        public void CmdSetReadyState(){
+            Debug.Log("Actualizando Ready State");
+            isReady = !isReady;
+            RpcupdateReadyStates(0);
+        }
+
+        [ClientRpc]
+        public void RpcupdateReadyStates(int roomIndex){
+            UIManager.instance.UpdateReadyStates(roomIndex);
+        }
+        #endregion
+
+
+
+
+
+
+
         #region Room Game Methods [Host, Join, Search, Start and Disconnect]
             #region  Host Game
             public void HostGame (bool publicMatch, int maxPlayers, Match.MatchType matchType) {
-                string matchID = MatchMaker.GetRandomMatchID ();
+                string matchID = MatchMaker.GetRandomMatchID();
                 CmdHostGame (matchID, publicMatch, maxPlayers, matchType);
                 PrintIdentity();
             }
@@ -104,7 +125,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
-                UIManager.instance.HostSuccess (success, _matchID);
+                UIManager.instance.HostSuccess(success, _matchID);
             }
             #endregion
 
@@ -117,7 +138,7 @@ namespace MirrorBasics {
             [Command]
             void CmdJoinGame (string _matchID) {
                 matchID = _matchID;
-                if (MatchMaker.instance.JoinGame (_matchID, gameObject, out playerIndex)) {
+                if (MatchMaker.instance.JoinGame(_matchID, gameObject, out playerIndex)) {
                     Debug.Log ($"<color=green>Game Joined successfully</color>");
                     networkMatchChecker.matchId = _matchID.ToGuid ();
                     TargetJoinGame (true, _matchID, playerIndex);
@@ -132,7 +153,7 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
-                UIManager.instance.RpcJoinSuccess (success, _matchID);
+                UIManager.instance.JoinSuccess (success, _matchID);
             }
             #endregion
 

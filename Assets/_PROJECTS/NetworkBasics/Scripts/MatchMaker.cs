@@ -90,13 +90,14 @@ namespace MirrorBasics {
 
         public bool HostGame (string _matchID, GameObject _player, bool publicMatch, out int playerIndex, int maxPlayers, Match.MatchType matchType) {
             playerIndex = -1;
+            Debug.Log("estoy llamando HOST GAME");
 
             if (!matchIDs.Contains (_matchID)) {
                 matchIDs.Add (_matchID);
                 Match match = new Match (_matchID, _player, publicMatch, maxPlayers, matchType);
                 matches.Add (match);
                 Debug.Log ($"Match generated");
-                _player.GetComponent<PlayerNetwork> ().currentMatch = match;
+                _player.GetComponent<PlayerNetwork>().currentMatch = match;
 
                 for (int i = 0; i < matches.Count; i++)
                 {
@@ -143,8 +144,10 @@ namespace MirrorBasics {
                 for (int i = 0; i < matches.Count; i++) {
                     if (matches[i].matchID == _matchID) {
                         if (!matches[i].inMatch && !matches[i].matchFull) {
+
                             matches[i].players.Add (_player);
-                            roomListManager.RpcFillList(matches[i].players.ToArray(),matches[i].matchID);
+                            roomListManager.RpcFillList(matches[i].players.ToArray(), _matchID);
+
                             _player.GetComponent<PlayerNetwork> ().currentMatch = matches[i];
                             playerIndex = matches[i].players.Count;
 
@@ -158,7 +161,8 @@ namespace MirrorBasics {
                         }
                     }
                 }
-
+                
+                Debug.Log("Players in Room: " + roomListManager.roomData[0].roomPlayers.Length);
                 Debug.Log ($"Match joined");
                 return true;
             } else {
