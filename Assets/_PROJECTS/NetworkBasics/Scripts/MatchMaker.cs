@@ -44,8 +44,12 @@ namespace MirrorBasics {
         }
     }
 
+
+
     [System.Serializable]
     public class SyncListGameObject : SyncList<GameObject> { }
+
+
 
     [System.Serializable]
     public class SyncListMatch : SyncList<Match> { }
@@ -146,7 +150,7 @@ namespace MirrorBasics {
                         if (!matches[i].inMatch && !matches[i].matchFull) {
 
                             matches[i].players.Add (_player);
-                            roomListManager.RpcFillList(matches[i].players.ToArray(), _matchID);
+                            roomListManager.FillList(matches[i].players.ToArray(), _matchID);
 
                             _player.GetComponent<PlayerNetwork> ().currentMatch = matches[i];
                             playerIndex = matches[i].players.Count;
@@ -225,7 +229,7 @@ namespace MirrorBasics {
                 if (matches[i].matchID == _matchID) {
                     int playerIndex = matches[i].players.IndexOf (player.gameObject);
                     matches[i].players.RemoveAt (playerIndex);
-                    roomListManager.RpcFillList(matches[i].players.ToArray(),matches[i].matchID);
+                    roomListManager.FillList(matches[i].players.ToArray(),matches[i].matchID);
                     Debug.Log ($"Player disconnected from match {_matchID} | {matches[i].players.Count} players remaining");
                     /* player.currentMatch = new Match(); */
                     if (matches[i].players.Count == 0) {

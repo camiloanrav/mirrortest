@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 namespace MirrorBasics {
     public class PlayerNetwork : NetworkBehaviour {
@@ -153,7 +154,9 @@ namespace MirrorBasics {
                 playerIndex = _playerIndex;
                 matchID = _matchID;
                 Debug.Log ($"MatchID: {matchID} == {_matchID}");
+                
                 UIManager.instance.JoinSuccess (success, _matchID);
+                UIManager.instance.UpdateReadyStates(0); //Cambiar el 0 por el Index de la sala
             }
             #endregion
 
@@ -212,28 +215,28 @@ namespace MirrorBasics {
             }
             #endregion
 
-            #region Start a Game
-        public void BeginGame () {
-            CmdBeginGame ();
-        }
+            #region Start a Game  
+            public void BeginGame () {
+                CmdBeginGame ();
+            }
 
-        [Command]
-        void CmdBeginGame () {
-            MatchMaker.instance.BeginGame (matchID);
-            Debug.Log ($"<color=red>Game Beginning</color>");
-        }
+            [Command]
+            void CmdBeginGame () {
+                MatchMaker.instance.BeginGame (matchID);
+                Debug.Log ($"<color=red>Game Beginning</color>");
+            }
 
-        public void StartGame () { //Server
-            TargetBeginGame ();
-        }
+            public void StartGame () { //Server
+                TargetBeginGame ();
+            }
 
-        [TargetRpc]
-        void TargetBeginGame () {
-            Debug.Log ($"MatchID: {matchID} | Beginning");
-            //Additively load game scene
-            SceneManager.LoadScene (2, LoadSceneMode.Additive);
-        }
-        #endregion
+            [TargetRpc]
+            void TargetBeginGame () {
+                Debug.Log ($"MatchID: {matchID} | Beginning");
+                //Additively load game scene
+                SceneManager.LoadScene (2, LoadSceneMode.Additive);
+            }
+            #endregion
         #endregion
     }
 }

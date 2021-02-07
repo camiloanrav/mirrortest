@@ -143,17 +143,14 @@ public class UIManager : MonoBehaviour {
 
                 temporalRoom.transform.GetChild(0).GetComponent<Text>().text = MatchMaker.instance.matchIDs[i];
                 temporalRoom.transform.GetChild(1).GetComponent<Text>().text = roomList.roomData.ToArray()[i].roomPlayers.Length + "/" + MatchMaker.instance.GetMaxMatchPlayers();
-                temporalRoom.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(()=>JoinRoom(i-1));
+                //temporalRoom.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(()=>JoinRoom(i-1));
              }
         }
     
         //playerprueba = (GameObject)roomList.roomData.ToArray()[0].roomPlayers[0];
-        Debug.Log("Lider!: " + RoomList.instance.roomData.ToArray()[0].roomName);
+        //Debug.Log("Lider!: " + RoomList.instance.roomData.ToArray()[0].roomPlayers[0].name);
     }
 
-    public void JoinRoom(int i){
-        //uiLobby.JoinFromButton(matchManager.matchIDs[i]);
-    }
     #endregion
 
     #endregion
@@ -246,8 +243,9 @@ public class UIManager : MonoBehaviour {
                     PlayerNetwork.localPlayer.isReady = false;
                     teamUI.readyText[lastIndex].text = "Not Ready..";
 
-                    PlayerNetwork.localPlayer.CmdSetReadyState();
+                    //PlayerNetwork.localPlayer.CmdSetReadyState();
                     teamUI.readyButton.onClick.AddListener(() => PlayerNetwork.localPlayer.CmdSetReadyState());
+                    Debug.Log("Match ID: " +roomList.matchManager.matches[0].matchID);
                 } 
             }
 
@@ -258,8 +256,16 @@ public class UIManager : MonoBehaviour {
     #endregion
 
     #region Ready Game
+    //Este metodo es el que actualiza los nombres y si estan listos en la room
     public void UpdateReadyStates(int roomIndex){
-        for (int i = 0; i < roomList.roomData[roomIndex].roomPlayers.Length; i++) {
+        Debug.Log("Probando aca!!!!!!!!!!!");
+        
+        for (int i = 0; i < roomList.roomData.ToArray()[roomIndex].roomPlayers.Length; i++) {      
+            //Update Player Name
+            playerprueba = roomList.roomData.ToArray()[roomIndex].roomPlayers[i];
+            teamUI.playersName[i].text = roomList.roomData.ToArray()[roomIndex].roomPlayers[i].gameObject.GetComponent<PlayerNetwork>().playerName;
+
+            //If is Ready or not
             if (roomList.roomData[roomIndex].roomPlayers[i].gameObject.GetComponent<PlayerNetwork>().isReady) {
                 teamUI.readyText[i].text = "¡Ready!";
             }else{

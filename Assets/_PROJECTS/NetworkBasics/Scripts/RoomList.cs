@@ -35,22 +35,12 @@ public class RoomList : NetworkBehaviour {
     }
 
     //Update the Player list when a Room already exist
-    [ClientRpc]
-    public void RpcFillList(GameObject[] roomPlayers, string roomID){
+    public void FillList(GameObject[] roomPlayers, string roomID){
         for (int i = 0; i < roomData.Count; i++) {
             if(roomData.ToArray()[i].roomName.Equals(roomID)){
-
                 roomData.ToArray()[i].roomPlayers = roomPlayers;
-                roomData.ToArray()[i].roomPlayersList.AddRange(roomPlayers);
-
-                //Fill list
-                /* for (int k = 0; k < roomPlayers.Length; k++) {
-                    roomData.ToArray()[i].roomPlayersList.Add(roomPlayers[k]);
-                } */
             }
         }
-
-
         //SpawnRooms();
         UIManager.instance.SpawnRooms();
     }
@@ -129,12 +119,10 @@ public class RoomList : NetworkBehaviour {
     public class RoomData {
         public string roomName;
         public GameObject[] roomPlayers;
-        public List<GameObject> roomPlayersList = new List<GameObject>();
 
         public RoomData(string _roomName, GameObject[] _roomPlayers){
             roomName = _roomName;
             roomPlayers = _roomPlayers;
-            roomPlayersList.AddRange(_roomPlayers);
         }
 
         public RoomData(){}
